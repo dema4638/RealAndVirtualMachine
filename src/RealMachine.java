@@ -1,4 +1,5 @@
 import javax.print.attribute.standard.PrinterStateReason;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -7,12 +8,10 @@ public class RealMachine {
     //Puslapiavimo mechanizmas
     private static CPU cpu = new CPU();
     private static Memory memory = new Memory(16, 16);
+    private static Compiler compiler = new Compiler();
 
-    private static final int[] code = {
-           /* Instruction.PUSH.getCode(), 10,
-            Instruction.PUSH.getCode(), 15,
-            Instruction.ADD.getCode()*/
-
+   // private static final int[] code;
+   /* {
            //X to the power of Y
            Instruction.READ.getCode(),
             Instruction.WD.getCode(),0,0,
@@ -35,13 +34,18 @@ public class RealMachine {
             Instruction.HALT.getCode()
 
 
-    };
+    };*/
+
+
     private static final int[] data = new int[10];
     private static final int stackSize = 1000;
 
-    private static VirtualMachine currentVm = new VirtualMachine(code, data, stackSize, memory);
+    //private static VirtualMachine currentVm = new VirtualMachine(code, data, stackSize, memory);
+    private static VirtualMachine currentVm;
 
     public static void main(String[] args) {
+        ArrayList<String> program = compiler.readFile();
+        currentVm = new VirtualMachine(compiler.getCode(program), data, stackSize, memory);
         while(true) {
             if (currentVm != null) {
                 if (currentVm.execute() != 0) {
@@ -50,5 +54,7 @@ public class RealMachine {
             }
         }
     }
+
+
 
 }
