@@ -5,47 +5,24 @@ import java.util.List;
 
 public class RealMachine {
 
-    //Puslapiavimo mechanizmas
-    private static CPU cpu = new CPU();
+   // private static CPU cpu = new CPU();
     private static Memory memory = new Memory(16, 16);
     private static Compiler compiler = new Compiler();
 
-   // private static final int[] code;
-   /* {
-           //X to the power of Y
-           Instruction.READ.getCode(),
-            Instruction.WD.getCode(),0,0,
-           Instruction.READ.getCode(),
-            Instruction.WD.getCode(),0,1,
-            Instruction.PUSH.getCode(),1,
-            Instruction.WD.getCode(),0,2,
-            Instruction.LD.getCode(),0,1,
-            Instruction.JE.getCode(),36,
-            Instruction.PUSH.getCode(),1,
-            Instruction.SUB.getCode(),
-            Instruction.WD.getCode(),0,1,
-            Instruction.LD.getCode(),0,2,
-            Instruction.LD.getCode(),0,0,
-            Instruction.MUL.getCode(),
-            Instruction.WD.getCode(),0,2,
-            Instruction.JMP.getCode(),13,
-            Instruction.LD.getCode(),0,2,
-            Instruction.PRINT.getCode(),
-            Instruction.HALT.getCode()
-
-
-    };*/
-
-
     private static final int[] data = new int[10];
-    private static final int stackSize = 1000;
+    private static final int stackSize = 100;
 
     //private static VirtualMachine currentVm = new VirtualMachine(code, data, stackSize, memory);
     private static VirtualMachine currentVm;
+    private static CPU cpu = new CPU(memory);
 
     public static void main(String[] args) {
         ArrayList<String> program = compiler.readFile();
-        currentVm = new VirtualMachine(compiler.getCode(program), data, stackSize, memory);
+
+        memory.randomBusyFrames(6); //Simulate frames that cannot be allocated to the VM
+
+        PageTable pageTable = new PageTable(memory.getFreeFrames(10));
+        currentVm = new VirtualMachine(compiler.getCode(program), data, stackSize, pageTable);
         while(true) {
             if (currentVm != null) {
                 if (currentVm.execute() != 0) {
@@ -55,6 +32,16 @@ public class RealMachine {
         }
     }
 
+    public static CPU getCPU() {
+        return cpu;
+    }
 
+    public static void addToMemory(int address, int value) {
+        memory.addValueToMemory(address, value);
+    }
+
+    public static int getFromMemory(int address) {
+        return memory.getValueFromMemory(address);
+    }
 
 }

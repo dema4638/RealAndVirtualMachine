@@ -4,108 +4,130 @@ public class VirtualMachine {
 
     private int sp;
     private int pc;
-    private int[] stack;
-    private int[] code;
-    private int[] data;
-    private Memory memory;
+//    private int[] stack;
+//    private int[] code;
+//    private int[] data;
     private Instruction[] instructionSet = Instruction.values();
+    private PageTable pageTable;
 
-    public VirtualMachine(int[] code, int[] data, int stackSize, Memory memory){
-        sp = -1;
-        this.code = code;
-        this.data = data;
-        this.pc = 0;
-        stack = new int[stackSize];
-        this.memory = memory;
+    public VirtualMachine(int[] code, int[] data, int stackSize, PageTable pageTable){
+        this.pageTable = pageTable;
+
+        int memIndex = 0;
+        for (int d : data) {
+            addToMemory(d, memIndex++);
+        }
+
+        pc = memIndex;
+        for (int c : code) {
+            addToMemory(c, memIndex++);
+        }
+
+        sp = memIndex;
+        int maxStackAddress = memIndex + stackSize - 1;
+        while(memIndex <= maxStackAddress) {
+            addToMemory(0, memIndex++);
+        }
     }
 
     public int execute() {
-        Instruction instruction = instructionSet[code[pc++]];
+        Instruction instruction = instructionSet[getFromMemory(pc++)];
         int[] operands = new int[instruction.getOperandCount()];
         for (int i = 0; i < instruction.getOperandCount(); i++) {
-            operands[i] = code[pc++];
+            operands[i] = getFromMemory(pc++);
         }
         int value;
         switch(instruction) {
             case ADD:
-                value = stack[sp-1] + stack[sp];
-                stack[--sp] = value;
+                value = getFromMemory(sp-1) + getFromMemory(sp);
+                addToMemory(value, --sp);
                 break;
             case SUB:
-                value = stack[sp-1] - stack[sp];
-                stack[--sp] = value;
+                value = getFromMemory(sp-1) - getFromMemory(sp);
+                addToMemory(value, --sp);
                 break;
             case MUL:
-                value = stack[sp-1] * stack[sp];
-                stack[--sp] = value;
+                value = getFromMemory(sp-1) * getFromMemory(sp);
+                addToMemory(value, --sp);
                 break;
             case DIV:
-                value = stack[sp-1] / stack[sp];
-                stack[--sp] = value;
+                value = getFromMemory(sp-1) / getFromMemory(sp);
+                addToMemory(value, --sp);
                 break;
             case HALT:
                 return 1;
             case PUSH:
-                stack[++sp] = operands[0];
+                addToMemory(operands[0], ++sp);
                 break;
             case WRITE:
-                System.out.println(stack[sp]);
+                System.out.println(getFromMemory(sp));
                 sp--;
                 break;
             case LD:
-                stack[++sp] = data[16*operands[0]+operands[1]];
+                value = getFromMemory(16*operands[0]+operands[1]);
+                addToMemory(value, ++sp);
                 break;
             case WD:
-                data[16*operands[0]+operands[1]] = stack[sp];
+                addToMemory(getFromMemory(sp),16*operands[0]+operands[1]);
                 break;
-            case SLD:
-                stack[++sp] = memory.getValueFromMemory(16*operands[0]+operands[1]);
-                sp++;
-                break;
-            case SWD:
-                memory.addValueToMemory(16*operands[0]+operands[1],stack[sp]);
-                break;
+//            case SLD:v b
+//                stack[++sp] = memory.getValueFromMemory(16*operands[0]+operands[1]);
+//                sp++;
+//                break;
+//            case SWD:
+//                memory.addValueToMemory(16*operands[0]+operands[1],stack[sp]);
+//                break;
             case JMP:
                 pc = operands[0];
                 break;
             case JE:
-                if (stack[sp] == 0) {
+                if (getFromMemory(sp) == 0) {
                     pc = operands[0];
                 }
                 break;
             case JG:
-                if (stack[sp] == 2) {
+                if (getFromMemory(sp) == 2) {
                     pc = operands[0];
                 }
                 break;
             case JL:
-                if (stack[sp] == 1) {
+                if (getFromMemory(sp) == 1) {
                     pc = operands[0];
                 }
                 break;
             case PRINT:
-                System.out.println(stack[sp]);
+                System.out.println(getFromMemory(sp));
                 break;
             case READ:
                 Scanner obj = new Scanner(System.in);
                 value = obj.nextInt();
-                stack[++sp]= value;
+                addToMemory(value, ++sp);
                 break;
             case CMP:
-                if (stack[sp] == stack[sp-1]){
-                    stack[--sp] = 0;
+                if (getFromMemory(sp) == getFromMemory(sp - 1)){
+                    addToMemory(0, --sp);
                 }
-                else if (stack[sp] < stack[sp-1]){
-                    stack[--sp]=1;
+                else if (getFromMemory(sp) < getFromMemory(sp - 1)){
+                    addToMemory(1, --sp);
                 }
                 else{
-                    stack[--sp]=2;
+                    addToMemory(2, --sp);
                 }
                 break;
             default:
                 throw new IllegalStateException("Unexpected value: " + instruction);
         }
         return 0;
+    }
+
+    private void addToMemory(int value, int virtualAddress) {
+        int realAddress = RealMachine.getCPU().getMmu().convertAddressToPhysical(virtualAddress, pageTable);
+        RealMachine.addToMemory(realAddress, value);
+    }
+
+    private int getFromMemory(int virtualAddress) {
+        int realAddress = RealMachine.getCPU().getMmu().convertAddressToPhysical(virtualAddress, pageTable);
+        return RealMachine.getFromMemory(realAddress);
     }
 
 }

@@ -1,5 +1,8 @@
 public class CPU {
-    public CPU(){}
+    public CPU(Memory memory)
+    {
+        mmu = new MMU(memory);
+    }
 
     private int PTR;
     private int PC;
@@ -12,6 +15,8 @@ public class CPU {
     private int CH1;
     private int CH2;
     private int CH3;
+
+    private MMU mmu;
 
     public int getPTR() {
         return PTR;
@@ -99,5 +104,9 @@ public class CPU {
 
     public void setCH3(int CH3) {
         this.CH3 = CH3;
+    }
+
+    public MMU getMmu() {
+        return mmu;
     }
 }
