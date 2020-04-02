@@ -64,4 +64,9 @@ public class Memory {
         return frames;
     }
 
+    public void freeFrame(int frameNumber) {
+        busyFrames[frameNumber] = false;
+    }
+
+
 }

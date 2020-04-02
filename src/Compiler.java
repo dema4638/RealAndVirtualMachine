@@ -8,13 +8,13 @@ import java.util.Collections;
 import java.util.List;
 
 public class Compiler {
+    private CPU cpu;
 
-
-    public ArrayList<String> readFile(){
+    public ArrayList<String> readFile(String fileName){
         ArrayList<String> program = new ArrayList<>();
         BufferedReader reader = null;
         try {
-            reader = new BufferedReader(new FileReader(("program1.txt")));
+            reader = new BufferedReader(new FileReader(fileName));
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -84,7 +84,14 @@ public class Compiler {
             case "CMP":
                 return Instruction.CMP.getCode();
         }
-            throw new IllegalArgumentException();
+           throw new IllegalArgumentException();
+        //cpu.setPI(1);
+      //  return -1;
+
+    }
+
+    public void setCPU(CPU cpu){
+        this.cpu = cpu;
     }
 
 }
