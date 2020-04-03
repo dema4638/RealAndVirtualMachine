@@ -42,14 +42,16 @@ public class RealMachine {
 
             if (runProgram) {
                 while (true) {
-                    if (currentVm.execute() != 0) {
-                        break;
-                    }
+                    currentVm.execute();
                     if ((index = cpu.getPI()) != 0) {
                         handlePIInterrupt(index);
                         break;
                     }
                     //TODO: handle SI interrupt
+                    if ((index = cpu.getSI()) != 0){
+                        handleSIInterrupt(index);
+                        break;
+                    }
                 }
                 currentVm.exit();
             }

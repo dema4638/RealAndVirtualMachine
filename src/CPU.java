@@ -21,7 +21,7 @@ public class CPU {
     private MMU mmu;
 
 
-    public int execute(Instruction instruction, PageTable pageTable, int[]operands){
+    public void execute(Instruction instruction, PageTable pageTable, int[]operands){
         int value;
         // RealMachine.getCPU().executeInstruction(instruction);
         switch(instruction) {
@@ -42,7 +42,8 @@ public class CPU {
                 mmu.addToMemory(value, --SP,pageTable);
                 break;
             case HALT:
-                return 1;
+                SI = 1;
+                break;
             case PUSH:
                 mmu.addToMemory(operands[0], ++SP,pageTable);
                 break;
@@ -107,7 +108,6 @@ public class CPU {
                 //PI=1;
 
         }
-        return 0;
     }
 
     public void resetInterrupts(){
