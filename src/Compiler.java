@@ -16,7 +16,7 @@ public class Compiler {
         try {
             reader = new BufferedReader(new FileReader(fileName));
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            System.out.println("Error: File not found!");
         }
         try {
             String line = reader.readLine();

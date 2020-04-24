@@ -8,7 +8,7 @@ public class CPU {
 
     private int PTR;
     private int PC;
-    private  int SP;
+    private int SP;
     private int SM;
     private int SI=0; //Saugo supervizorinio pertraukimo komandos indeksa
     private int PI=0;  //Saugo programinio pertraukimo komandos indeksa
