@@ -35,11 +35,11 @@ public class VirtualMachine {
 
     public int execute() {
         Instruction instruction = instructionSet[getCPU().getMmu().
-                getFromMemory(getCPU().getAndIncrementPC(),pageTable)];
+                getFromMemory(getCPU().getAndIncrementPC(),pageTable, getCPU().getMODE())];
         int[] operands = new int[instruction.getOperandCount()];
         for (int i = 0; i < instruction.getOperandCount(); i++) {
             operands[i] = getCPU().getMmu().
-                    getFromMemory(getCPU().getAndIncrementPC(),pageTable);
+                    getFromMemory(getCPU().getAndIncrementPC(),pageTable, getCPU().getMODE());
         }
         return getCPU().execute(instruction,pageTable,operands);
 

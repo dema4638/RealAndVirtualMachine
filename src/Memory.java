@@ -68,5 +68,9 @@ public class Memory {
         busyFrames[frameNumber] = false;
     }
 
+    
+    public int[] viewData(){
+        return memory;
+    }
 
 }

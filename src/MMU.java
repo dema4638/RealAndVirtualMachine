@@ -13,13 +13,15 @@ public class MMU { //does the mapping between physical and virtual address
         return frameNumber * pageSize + offset;
     }
 
-    public void addToMemory(int value, int virtualAddress, PageTable pageTable) {
-        int realAddress = convertAddressToPhysical(virtualAddress, pageTable);
+    public void addToMemory(int value, int address, PageTable pageTable) {
+        int realAddress = convertAddressToPhysical(address, pageTable);
         RealMachine.addToMemory(realAddress, value);
     }
 
-    public int getFromMemory(int virtualAddress, PageTable pageTable) {
-        int realAddress = convertAddressToPhysical(virtualAddress, pageTable);
+    public int getFromMemory(int address, PageTable pageTable, int mode) {
+    	if (mode == 1)
+    		return memory.getValueFromMemory(address);
+        int realAddress = convertAddressToPhysical(address, pageTable);
         return RealMachine.getFromMemory(realAddress);
     }
 

@@ -1,4 +1,6 @@
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class CPU {
     public CPU(Memory memory)
@@ -24,21 +26,23 @@ public class CPU {
     public int execute(Instruction instruction, PageTable pageTable, int[]operands){
         int value;
         // RealMachine.getCPU().executeInstruction(instruction);
+        int mode = getMODE();
+        System.out.println(instruction);
         switch(instruction) {
             case ADD:
-                value = mmu.getFromMemory(SP-1, pageTable) + mmu.getFromMemory(SP,pageTable);
+                value = mmu.getFromMemory(SP-1, pageTable, mode) + mmu.getFromMemory(SP,pageTable, mode);
                 mmu.addToMemory(value, --SP,pageTable);
                 break;
             case SUB:
-                value = mmu.getFromMemory(SP-1,pageTable) - mmu.getFromMemory(SP,pageTable);
+                value = mmu.getFromMemory(SP-1,pageTable, mode) - mmu.getFromMemory(SP,pageTable, mode);
                 mmu.addToMemory(value, --SP,pageTable);
                 break;
             case MUL:
-                value = mmu.getFromMemory(SP-1,pageTable) * mmu.getFromMemory(SP,pageTable);
+                value = mmu.getFromMemory(SP-1,pageTable, mode) * mmu.getFromMemory(SP,pageTable, mode);
                 mmu.addToMemory(value, --SP,pageTable);
                 break;
             case DIV:
-                value = mmu.getFromMemory(SP-1,pageTable) / mmu.getFromMemory(SP,pageTable);
+                value = mmu.getFromMemory(SP-1,pageTable, mode) / mmu.getFromMemory(SP,pageTable, mode);
                 mmu.addToMemory(value, --SP,pageTable);
                 break;
             case HALT:
@@ -47,15 +51,15 @@ public class CPU {
                 mmu.addToMemory(operands[0], ++SP,pageTable);
                 break;
             case WRITE:
-                System.out.println(mmu.getFromMemory(SP,pageTable));
+                System.out.println(mmu.getFromMemory(SP,pageTable, mode));
                 SP--;
                 break;
             case LD:
-                value = mmu.getFromMemory(16*operands[0]+operands[1],pageTable);
+                value = mmu.getFromMemory(16*operands[0]+operands[1],pageTable, mode);
                 mmu.addToMemory(value, ++SP,pageTable);
                 break;
             case WD:
-                mmu.addToMemory(mmu.getFromMemory(SP,pageTable),16*operands[0]+operands[1],pageTable);
+                mmu.addToMemory(mmu.getFromMemory(SP,pageTable, mode),16*operands[0]+operands[1],pageTable);
                 break;
 //            case SLD:v b
 //                stack[++SP] = memory.getValueFromMemory(16*operands[0]+operands[1]);
@@ -68,22 +72,22 @@ public class CPU {
                 PC = operands[0];
                 break;
             case JE:
-                if (mmu.getFromMemory(SP,pageTable) == 0) {
+                if (mmu.getFromMemory(SP,pageTable, mode) == 0) {
                     PC = operands[0];
                 }
                 break;
             case JG:
-                if (mmu.getFromMemory(SP,pageTable) == 2) {
+                if (mmu.getFromMemory(SP,pageTable, mode) == 2) {
                     PC = operands[0];
                 }
                 break;
             case JL:
-                if (mmu.getFromMemory(SP,pageTable) == 1) {
+                if (mmu.getFromMemory(SP,pageTable, mode) == 1) {
                     PC = operands[0];
                 }
                 break;
             case PRINT:
-                System.out.println(mmu.getFromMemory(SP,pageTable));
+                System.out.println(mmu.getFromMemory(SP,pageTable, mode));
                 break;
             case READ:
                 Scanner obj = new Scanner(System.in);
@@ -92,10 +96,10 @@ public class CPU {
                 mmu.addToMemory(value, ++SP,pageTable);
                 break;
             case CMP:
-                if (mmu.getFromMemory(SP,pageTable) == mmu.getFromMemory(SP - 1,pageTable)){
+                if (mmu.getFromMemory(SP,pageTable, mode) == mmu.getFromMemory(SP - 1,pageTable, mode)){
                     mmu.addToMemory(0, --SP,pageTable);
                 }
-                else if (mmu.getFromMemory(SP,pageTable) < mmu.getFromMemory(SP - 1,pageTable)){
+                else if (mmu.getFromMemory(SP,pageTable, mode) < mmu.getFromMemory(SP - 1,pageTable, mode)){
                     mmu.addToMemory(1, --SP,pageTable);
                 }
                 else{
@@ -109,6 +113,7 @@ public class CPU {
         }
         return 0;
     }
+    
 
     public void resetInterrupts(){
         SI=0;
