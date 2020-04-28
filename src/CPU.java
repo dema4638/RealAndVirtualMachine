@@ -32,9 +32,7 @@ public class CPU {
 
     public void execute(Instruction instruction, PageTable pageTable, int[]operands){
         int value;
-        // RealMachine.getCPU().executeInstruction(instruction);
         int mode = getMODE();
-        System.out.println(instruction);
         switch(instruction) {
             case ADD:
                 value = mmu.getFromMemory(SP-1, pageTable, mode) + mmu.getFromMemory(SP,pageTable, mode);

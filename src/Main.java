@@ -104,6 +104,27 @@ public class Main {
     private static void run()
     {
 		rm.runProgram(program, debugEnabled);
+		
+		while(true)
+		{
+			if (debugEnabled)
+			{
+					synchronized(rm)
+					{
+						try {
+							rm.wait();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					
+					if (rm.doNextStep() == 0)
+						break;
+			}
+			else if (rm.doNextStep() == 0)
+				break;
+			
+		}
     }
     
     private static void printCommands()

@@ -44,24 +44,28 @@ public class RealMachine {
         }
 
         currentVm = new VirtualMachine(code, data, stackSize, pageTable);
-        if (runProgram) {
-            while (true) {
-            	
-            	cpu.setMODE(0);
-            	if (cpu.getPI() == 0 && cpu.getSI() == 0)
-            		nextStep();
-
-            	cpu.setMODE(1);
-            	if (processInterrupt() == 0)
-            		break;
-         
-            	if (isDebugMode)
-            		gui.setStepButtonEnabled(true);
-            }
-            currentVm.exit();
-        }
     }
     
+    public int doNextStep()
+    {
+    	cpu.setMODE(0);
+    	if (cpu.getPI() == 0 && cpu.getSI() == 0)
+    		nextStep();
+
+    	cpu.setMODE(1);
+    	if (processInterrupt() == 0)
+    		return 0;
+ 
+    	if (isDebugMode)
+    		gui.setStepButtonEnabled(true);
+    	
+    	return 1;
+    }
+    
+    public void exit()
+    {
+        currentVm.exit();
+    }
     /*
     PI = 1: Wrong command found in program's code
     PI = 2: Wrong address
