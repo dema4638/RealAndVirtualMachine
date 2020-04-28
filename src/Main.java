@@ -125,6 +125,8 @@ public class Main {
 				break;
 			
 		}
+		
+		rm.exit();
     }
     
     private static void printCommands()

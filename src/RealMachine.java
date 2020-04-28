@@ -9,6 +9,7 @@ public class RealMachine {
 	// C:\Users\kristupas.lunskas\Desktop\Universitetas\OS\RealAndVirtualMachine\power.txt
 
     private static Memory memory = new Memory(16, 16);
+    private static Memory externalMemory = new Memory(16,16);
     private static Compiler compiler = new Compiler();
     private static InputDevice inputDevice = new InputDevice();
     private static OutputDevice outputDevice = new OutputDevice();
@@ -21,7 +22,6 @@ public class RealMachine {
     private static boolean isDebugMode;
     private final int[] data = new int[10];
     private final int stackSize = 100;
-    private boolean runProgram = true;
     
     public ArrayList<String> loadProgram(String filepath)
     {
@@ -40,7 +40,6 @@ public class RealMachine {
         if ((index = cpu.getPI()) != 0) {
             processInterrupt();
             cpu.setPI(0);
-            runProgram = false;
         }
 
         currentVm = new VirtualMachine(code, data, stackSize, pageTable);
@@ -50,7 +49,7 @@ public class RealMachine {
     {
     	cpu.setMODE(0);
     	if (cpu.getPI() == 0 && cpu.getSI() == 0)
-    		nextStep();
+    		execute();
 
     	cpu.setMODE(1);
     	if (processInterrupt() == 0)
@@ -60,6 +59,12 @@ public class RealMachine {
     		gui.setStepButtonEnabled(true);
     	
     	return 1;
+    }
+    
+    public void execute() {
+        cpu.setMODE(0);
+        currentVm.execute();
+        cpu.setMODE(1);
     }
     
     public void exit()
@@ -158,12 +163,9 @@ public class RealMachine {
         return memory.viewData();
     }
     
-    public int nextStep() {
-        cpu.setMODE(0);
-        currentVm.execute();
-        cpu.setMODE(1);
-      
-        return 1;
-        //return handlePIInterrupt();
+    public int[] viewExternalMemory(){
+        return externalMemory.viewData();
     }
+    
+
 }

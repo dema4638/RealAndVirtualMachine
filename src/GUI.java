@@ -231,31 +231,37 @@ public class GUI extends javax.swing.JFrame {
 
     private void nextStepButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextStepButtonActionPerformed
         synchronized(rm){
-            if(rm.nextStep() == 1){
+            if(rm.doNextStep() == 1){
                 rm.notify();
             }
             updateRegisters();
         }
     }//GEN-LAST:event_nextStepButtonActionPerformed
 
-	/*
-	 * private void externalMemoryButtonActionPerformed(java.awt.event.ActionEvent
-	 * evt) {//GEN-FIRST:event_externalMemoryButtonActionPerformed // TODO add your
-	 * handling code here: Word[] externalMemory = rm.viewExternalMemory();
-	 * FileOutputStream out = null; try { out = new FileOutputStream(new
-	 * File("externalMemory.bin")); for (Word data : externalMemory) {
-	 * out.write(data.getBytes()); } out.close();
-	 * //System.out.println("External memory saved in file: externalMemory.bin"); }
-	 * catch (FileNotFoundException ex) {
-	 * Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex); } catch
-	 * (IOException ex) { Logger.getLogger(GUI.class.getName()).log(Level.SEVERE,
-	 * null, ex); } finally { try { out.close(); } catch (IOException ex) {
-	 * Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex); } }
-	 * }//GEN-LAST:event_externalMemoryButtonActionPerformed
-	 */
-    /**
-     * @param args the command line arguments
-     */
+    private void externalMemoryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_externalMemoryButtonActionPerformed
+        // TODO add your handling code here:
+            int[] externalMemory = rm.viewExternalMemory();     
+            FileOutputStream out = null;
+            try {
+                out = new FileOutputStream(new File("externalMemory.bin"));
+            for (int data : externalMemory) {
+                out.write(data);
+            }
+            out.close();
+            //System.out.println("External memory saved in file: externalMemory.bin");
+            } catch (FileNotFoundException ex) {
+                Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (IOException ex) {
+                Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            finally {
+                try {
+                    out.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }  
+    }//GEN-LAST:event_externalMemoryButtonActionPerformed
     
     public void setStepButtonEnabled(boolean value){
         nextStepButton.setEnabled(value);
