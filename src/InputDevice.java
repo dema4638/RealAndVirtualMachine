@@ -16,7 +16,7 @@ public class InputDevice {
 		catch(IOException ex)
 		{
 			ex.printStackTrace();
-			return new byte[0];
+			return null;
 		}
 	}
 }

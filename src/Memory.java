@@ -20,28 +20,15 @@ public class Memory {
     }
 
     public void randomBusyFrames(int count) {
-        int i = 0;
-        while(i < count) {
-            boolean existsFreeFrame = false;
-            for (boolean f : busyFrames) {
-                if (!f) {
-                    existsFreeFrame = true;
-                    break;
-                }
-            }
-            if (!existsFreeFrame) {
-                return;
-            }
-
-            int nextBusyFrame = new Random().nextInt(busyFrames.length);
-            if (!busyFrames[nextBusyFrame]) {
-                busyFrames[nextBusyFrame] = true;
-                for(int j = 0; j < 16; j++) {
-                    memory[16 * nextBusyFrame + j] = -1;
-                }
-                i++;
-            }
-        }
+		/*
+		 * int i = 0; while(i < count) { boolean existsFreeFrame = false; for (boolean f
+		 * : busyFrames) { if (!f) { existsFreeFrame = true; break; } } if
+		 * (!existsFreeFrame) { return; }
+		 * 
+		 * int nextBusyFrame = new Random().nextInt(busyFrames.length); if
+		 * (!busyFrames[nextBusyFrame]) { busyFrames[nextBusyFrame] = true; for(int j =
+		 * 0; j < 16; j++) { memory[16 * nextBusyFrame + j] = -1; } i++; } }
+		 */
     }
 
     public int[] getFreeFrames (int number) {

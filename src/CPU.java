@@ -2,10 +2,17 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+
 public class CPU {
-    public CPU(Memory memory)
+
+    public CPU(MMU mmu)
     {
-        mmu = new MMU(memory);
+        this.mmu = mmu;
+    }
+    
+    public void initGUIReference(GUI gui)
+    {
+    	this.gui = gui;
     }
 
     private int PTR;
@@ -21,9 +28,9 @@ public class CPU {
     private int CH3;
 
     private MMU mmu;
+	private GUI gui;
 
-
-    public int execute(Instruction instruction, PageTable pageTable, int[]operands){
+    public void execute(Instruction instruction, PageTable pageTable, int[]operands){
         int value;
         // RealMachine.getCPU().executeInstruction(instruction);
         int mode = getMODE();
@@ -46,7 +53,8 @@ public class CPU {
                 mmu.addToMemory(value, --SP,pageTable);
                 break;
             case HALT:
-                return 1;
+                setSI(1);
+                break;
             case PUSH:
                 mmu.addToMemory(operands[0], ++SP,pageTable);
                 break;
@@ -87,13 +95,10 @@ public class CPU {
                 }
                 break;
             case PRINT:
-                System.out.println(mmu.getFromMemory(SP,pageTable, mode));
+            	setSI(3);
                 break;
             case READ:
-                Scanner obj = new Scanner(System.in);
-                value = obj.nextInt();
-                //obj.close();
-                mmu.addToMemory(value, ++SP,pageTable);
+            	setSI(2);
                 break;
             case CMP:
                 if (mmu.getFromMemory(SP,pageTable, mode) == mmu.getFromMemory(SP - 1,pageTable, mode)){
@@ -109,9 +114,7 @@ public class CPU {
             default:
                 throw new IllegalStateException("Unexpected value: " + instruction);
                 //PI=1;
-
         }
-        return 0;
     }
     
 

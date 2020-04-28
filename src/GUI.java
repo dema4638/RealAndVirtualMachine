@@ -225,6 +225,7 @@ public class GUI extends javax.swing.JFrame {
             sb.append(String.format("%02x", data[i]));
             sb.append(" ");
         }
+        updateRegisters();
         memoryTextArea.setText(sb.toString());
     }//GEN-LAST:event_updateButtonActionPerformed
 

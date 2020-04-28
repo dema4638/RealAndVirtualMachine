@@ -65,6 +65,7 @@ public class Main {
 		try
 		{
 			program = rm.loadProgram(filePath);
+        	gui.setStepButtonEnabled(true);
 			outputDevice.println("Program has been sucessfully loaded. Type RUN to run it.");
 		}
 		catch(Exception ex) {}
@@ -94,14 +95,14 @@ public class Main {
     		outputDevice.println("Debug disabled.");
     	
     	if (program == null)
-    	{
     		outputDevice.println("Program has not been loaded. Type LOAD to load a program.");
-    	}
+    	
+    	gui.setVisible(debugEnabled);
+    	rm.initDebugGUI(gui);
     }
     
     private static void run()
     {
-		gui.setVisible(debugEnabled);
 		rm.runProgram(program, debugEnabled);
     }
     

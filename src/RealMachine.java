@@ -1,20 +1,27 @@
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class RealMachine {
+	
+	// C:\Users\kristupas.lunskas\Desktop\Universitetas\OS\RealAndVirtualMachine\power.txt
 
-	private static DebugObject debugObject = new DebugObject(); 
-   // private static CPU cpu = new CPU();
     private static Memory memory = new Memory(16, 16);
-    private static CPU cpu = new CPU(memory);
     private static Compiler compiler = new Compiler();
     private static InputDevice inputDevice = new InputDevice();
     private static OutputDevice outputDevice = new OutputDevice();
-    private static VirtualMachine currentVm;// = new VirtualMachine(code, data, stackSize, memory);
-    
+    private static VirtualMachine currentVm;
     private static GUI gui;
+    private static MMU mmu = new MMU(memory);
+    private static CPU cpu = new CPU(mmu);
+    private static PageTable pageTable = new PageTable(memory.getFreeFrames(10));
+    
+    private static boolean isDebugMode;
+    private final int[] data = new int[10];
+    private final int stackSize = 100;
+    private boolean runProgram = true;
     
     public ArrayList<String> loadProgram(String filepath)
     {
@@ -22,71 +29,114 @@ public class RealMachine {
         return compiler.readFile(sc.nextLine());
     }
     
-    public void runProgram(ArrayList<String> program, boolean isDebugMode)
+    public void runProgram(ArrayList<String> program, boolean isDebug)
     {
-        memory.randomBusyFrames(6); //Simulate frames that cannot be allocated to the VM
-        
-        while (true) {
-            final int[] data = new int[10];
-            final int stackSize = 100;
-            boolean runProgram = true;
+    	memory.randomBusyFrames(6); //Simulate frames that cannot be allocated to the VM
+        isDebugMode = isDebug;
+        compiler.setCPU(cpu);
 
+        int index;
+        int[] code = compiler.getCode(program);
+        if ((index = cpu.getPI()) != 0) {
+            processInterrupt();
+            cpu.setPI(0);
+            runProgram = false;
+        }
 
-            //sc.close();
-            PageTable pageTable = new PageTable(memory.getFreeFrames(10));
-            compiler.setCPU(cpu);
+        currentVm = new VirtualMachine(code, data, stackSize, pageTable);
+        if (runProgram) {
+            while (true) {
+            	
+            	cpu.setMODE(0);
+            	if (cpu.getPI() == 0 && cpu.getSI() == 0)
+            		nextStep();
 
-            int index;
-            int[] code = compiler.getCode(program);
-            if ((index = cpu.getPI()) != 0) {
-                handlePIInterrupt(index);
-                cpu.setPI(0);
-                runProgram = false;
+            	cpu.setMODE(1);
+            	if (processInterrupt() == 0)
+            		break;
+         
+            	if (isDebugMode)
+            		gui.setStepButtonEnabled(true);
             }
-
-            currentVm = new VirtualMachine(code, data, stackSize, pageTable);
-            if (runProgram) {
-                while (true) {
-                    if (nextStep() != 0) {
-                    	gui.updateRegisters();
-                    }
-                    if ((index = cpu.getPI()) != 0) {
-                        handlePIInterrupt(index);
-                        break;
-                    }
-                    //TODO: handle SI interrupt
-                }
-                currentVm.exit();
-            }
+            currentVm.exit();
         }
     }
     
-    /*PI = 1: Wrong command found in program's code
-     */
-    public static void handlePIInterrupt(int index){
-        switch (index) {
+    /*
+    PI = 1: Wrong command found in program's code
+    PI = 2: Wrong address
+    PI = 3: Not enough external memory
+    SI = 1: HALT interrupt
+    SI = 2: Get input from input device
+    SI = 3: Put output to output device
+    */
+    
+    public int processInterrupt()
+    {
+    	int index = 0;
+    	if ((index = cpu.getPI()) != 0)
+    	{
+            switch (index) {
             case 1:
             	outputDevice.println("Wrong command found in program's code");
                 cpu.resetInterrupts();
-                break;
+                return 0;
                 
             case 2:
-            	
-        }
-    }
-
-    /* SI = 1: HALT interrupt
-     */
-
-
-    public static void handleSIInterrupt(int index){
-        switch (index) {
+            	outputDevice.println("Wrong address");
+                cpu.resetInterrupts();
+                return 0;
+                
+            case 3:
+            	outputDevice.println("Not enough external memory");
+                cpu.resetInterrupts();
+                return 0;
+            }
+    	}
+    	else if ((index = cpu.getSI()) != 0)
+    	{
+            switch (index) {
             case 1:
                 cpu.resetInterrupts();
+                return 0;
+                
+            case 2:
+            	getInputData();
+                cpu.resetInterrupts();
                 break;
-        }
+                
+            case 3:
+            	putOutputData();
+                cpu.resetInterrupts();
+                break;
+            }
+    	}
+    	return 1;
+    }
+    
+    
+    public void getInputData()
+    {
+    	if (gui != null)
+    		gui.setStepButtonEnabled(false);
+    	byte[] input = inputDevice.getInput();
+    	int value = Character.getNumericValue((char)input[0]);
+    	cpu.setSP(cpu.getSP()+1);
+        mmu.addToMemory(value, cpu.getSP(), pageTable);
+    	if (gui != null)
+    		gui.setStepButtonEnabled(true);
+    }
+    
+    public void putOutputData()
+    {
+    	outputDevice.println(mmu.getFromMemory(cpu.getSP(),pageTable, cpu.getMODE()));
     }
 
+    public void initDebugGUI(GUI givenGUI)
+    {
+    	gui = givenGUI;
+    	cpu.initGUIReference(gui);
+    }
 
     public static CPU getCPU() {
         return cpu;
@@ -106,10 +156,10 @@ public class RealMachine {
     
     public int nextStep() {
         cpu.setMODE(0);
-        int result = currentVm.execute();
+        currentVm.execute();
         cpu.setMODE(1);
-    	outputDevice.println(result);
-        return result;
+      
+        return 1;
         //return handlePIInterrupt();
     }
 }
