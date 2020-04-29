@@ -9,7 +9,7 @@ public class RealMachine {
 	// C:\Users\kristupas.lunskas\Desktop\Universitetas\OS\RealAndVirtualMachine\power.txt
 
     private static Memory memory = new Memory(16, 16);
-    private static Memory externalMemory = new Memory(16,16);
+    private static Memory externalMemory = new Memory(32,16);
     private static Compiler compiler = new Compiler();
     private static InputDevice inputDevice = new InputDevice();
     private static OutputDevice outputDevice = new OutputDevice();
@@ -17,12 +17,17 @@ public class RealMachine {
     private static GUI gui;
     private static MMU mmu = new MMU(memory);
     private static CPU cpu = new CPU(mmu);
-    private static PageTable pageTable = new PageTable(memory.getFreeFrames(10));
+    private static PageTable pageTable;
     
     private static boolean isDebugMode;
     private final int[] data = new int[10];
     private final int stackSize = 100;
-    
+
+    public RealMachine() {
+        memory.randomBusyFrames(6); //Simulate frames that cannot be allocated to the VM
+        pageTable = new PageTable(memory.getFreeFrames(10));
+    }
+
     public ArrayList<String> loadProgram(String filepath)
     {
         Scanner sc = new Scanner(filepath);
@@ -31,7 +36,6 @@ public class RealMachine {
     
     public void runProgram(ArrayList<String> program, boolean isDebug)
     {
-    	memory.randomBusyFrames(6); //Simulate frames that cannot be allocated to the VM
         isDebugMode = isDebug;
         compiler.setCPU(cpu);
 
