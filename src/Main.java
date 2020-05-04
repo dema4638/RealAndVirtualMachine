@@ -68,7 +68,10 @@ public class Main {
         	gui.setStepButtonEnabled(true);
 			outputDevice.println("Program has been sucessfully loaded. Type RUN to run it.");
 		}
-		catch(Exception ex) {}
+		catch(Exception ex)
+		{
+			ex.printStackTrace();
+		}
     }
     
     private static void unload()

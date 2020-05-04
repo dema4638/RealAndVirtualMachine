@@ -1,14 +1,11 @@
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class RealMachine {
 	
 	// C:\Users\kristupas.lunskas\Desktop\Universitetas\OS\RealAndVirtualMachine\power.txt
 
-    private static Memory memory = new Memory(16, 16);
+    private static Memory memory = new Memory(Configuration.FRAMES_IN_MEMORY, Configuration.FRAME_SIZE);
     private static Memory externalMemory = new Memory(16,16);
     private static Compiler compiler = new Compiler();
     private static InputDevice inputDevice = new InputDevice();
@@ -17,12 +14,15 @@ public class RealMachine {
     private static GUI gui;
     private static MMU mmu = new MMU(memory);
     private static CPU cpu = new CPU(mmu);
-    private static PageTable pageTable = new PageTable(memory.getFreeFrames(10));
-    
+
     private static boolean isDebugMode;
     private final int[] data = new int[10];
     private final int stackSize = 100;
-    
+
+    public RealMachine() {
+        memory.randomBusyFrames(Configuration.FAKE_BUSY_FRAMES_COUNT); //Simulate frames that cannot be allocated to the VM
+    }
+
     public ArrayList<String> loadProgram(String filepath)
     {
         Scanner sc = new Scanner(filepath);
@@ -31,7 +31,6 @@ public class RealMachine {
     
     public void runProgram(ArrayList<String> program, boolean isDebug)
     {
-    	memory.randomBusyFrames(6); //Simulate frames that cannot be allocated to the VM
         isDebugMode = isDebug;
         compiler.setCPU(cpu);
 
@@ -42,9 +41,12 @@ public class RealMachine {
             cpu.setPI(0);
         }
 
-        currentVm = new VirtualMachine(code, data, stackSize, pageTable);
+        createPageTable();
+        currentVm = createVirtualMachine(code, data, stackSize);
+
+        // new VirtualMachine(code, data, stackSize);
     }
-    
+
     public int doNextStep()
     {
     	cpu.setMODE(0);
@@ -131,14 +133,14 @@ public class RealMachine {
     	byte[] input = inputDevice.getInput();
     	int value = Character.getNumericValue((char)input[0]);
     	cpu.setSP(cpu.getSP()+1);
-        mmu.addToMemory(value, cpu.getSP(), pageTable);
+        mmu.addToMemory(value, cpu.getSP(), cpu.getPTR());
     	if (gui != null)
     		gui.setStepButtonEnabled(true);
     }
     
     public void putOutputData()
     {
-    	outputDevice.println(mmu.getFromMemory(cpu.getSP(),pageTable, cpu.getMODE()));
+    	outputDevice.println(mmu.getFromMemory(cpu.getSP(), cpu.getPTR(), cpu.getMODE()));
     }
 
     public void initDebugGUI(GUI givenGUI)
@@ -166,6 +168,22 @@ public class RealMachine {
     public int[] viewExternalMemory(){
         return externalMemory.viewData();
     }
-    
 
+    private VirtualMachine createVirtualMachine(int[] code, int[] data, int stackSize) {
+        int requiredMemory = code.length + data.length + stackSize;
+        int[] allocatedFrames = memory.getFreeFrames(
+                (requiredMemory - 1) / Configuration.FRAME_SIZE + 1,
+                false);
+
+        mmu.createFrameMapping(allocatedFrames, cpu.getPTR());
+
+        return new VirtualMachine(code, data, stackSize);
+    }
+
+    private void createPageTable() {
+        int firstFrame = memory.getFreeFrames(
+                (Configuration.FRAMES_IN_MEMORY - 1) / Configuration.FRAME_SIZE + 1,
+                true)[0];
+        cpu.setPTR(firstFrame);
+    }
 }
