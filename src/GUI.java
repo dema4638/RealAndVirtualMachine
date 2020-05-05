@@ -219,7 +219,7 @@ public class GUI extends javax.swing.JFrame {
         for(int i = 0; i < data.length; i++){
             if(i % 4 == 0){
                 sb.append("\n");
-                sb.append(Integer.toHexString(i * 4));
+                sb.append(String.format("%02X", i));
                 sb.append("\t");
             }
             sb.append(String.format("%02x", data[i]));
@@ -268,13 +268,13 @@ public class GUI extends javax.swing.JFrame {
     }
     
     public void updateRegisters() {
-        pcTextField.setText(Integer.toString(cpu.getPC()));
-        piTextField.setText(Integer.toString(cpu.getPI()));
-        ptrTextField.setText(Integer.toString(cpu.getPTR()));
-        siTextField.setText(Integer.toString(cpu.getSI()));
-        tiTextField.setText(Integer.toString(cpu.getTI()));
-        spTextField.setText(Integer.toString(cpu.getSP()));
-        modeTextField.setText(Integer.toString(cpu.getMODE()));
+        pcTextField.setText(String.format("%02X", cpu.getPC()));
+        piTextField.setText(String.format("%02X", cpu.getPI()));
+        ptrTextField.setText(String.format("%02X", cpu.getPTR()));
+        siTextField.setText(String.format("%02X", cpu.getSI()));
+        tiTextField.setText(String.format("%02X", cpu.getTI()));
+        spTextField.setText(String.format("%02X", cpu.getSP()));
+        modeTextField.setText(String.format("%02X", cpu.getMODE()));
     }
 
 
