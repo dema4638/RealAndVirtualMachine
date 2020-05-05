@@ -1,48 +1,35 @@
-import java.util.Scanner;
-
 public class VirtualMachine {
 
-//    private int sp;
-//    private int pc;
-//    private int[] stack;
-//    private int[] code;
-//    private int[] data;
     private Instruction[] instructionSet = Instruction.values();
-    private PageTable pageTable;
 
-    public VirtualMachine(int[] code, int[] data, int stackSize, PageTable pageTable){
+    public VirtualMachine(int[] code, int[] data, int stackSize) {
         //loading virtual machine into memory
-        this.pageTable = pageTable;
-
         int memIndex = 0;
         for (int d : data) {
-            getCPU().getMmu().addToMemory(d, memIndex++,pageTable);
+            getCPU().getMmu().addToMemory(d, memIndex++, getCPU().getPTR());
         }
 
         getCPU().setPC(memIndex);
-        //RealMachine.getCPU().setPC(pc);
         for (int c : code) {
-            getCPU().getMmu().addToMemory(c, memIndex++,pageTable);
+            getCPU().getMmu().addToMemory(c, memIndex++, getCPU().getPTR());
         }
 
         getCPU().setSP(memIndex);
-        //RealMachine.getCPU().setSP(sp);
         int maxStackAddress = memIndex + stackSize - 1;
         while(memIndex <= maxStackAddress) {
-            getCPU().getMmu().addToMemory(0, memIndex++,pageTable);
+            getCPU().getMmu().addToMemory(0, memIndex++, getCPU().getPTR());
         }
     }
 
     public void execute() {
         Instruction instruction = instructionSet[getCPU().getMmu().
-                getFromMemory(getCPU().getAndIncrementPC(),pageTable)];
+                getFromMemory(getCPU().getAndIncrementPC(), getCPU().getPTR(), getCPU().getMODE())];
         int[] operands = new int[instruction.getOperandCount()];
         for (int i = 0; i < instruction.getOperandCount(); i++) {
             operands[i] = getCPU().getMmu().
-                    getFromMemory(getCPU().getAndIncrementPC(),pageTable);
+                    getFromMemory(getCPU().getAndIncrementPC(), getCPU().getPTR(), getCPU().getMODE());
         }
-        getCPU().execute(instruction,pageTable,operands);
-
+        getCPU().execute(instruction ,operands);
     }
 
     private CPU getCPU() {
@@ -50,8 +37,7 @@ public class VirtualMachine {
     }
 
     public void exit() {
-        getCPU().getMmu().freePagesFromMemory(pageTable);
+        getCPU().getMmu().freePagesFromMemory(getCPU().getPTR());
         instructionSet = null;
-        pageTable = null;
     }
 }

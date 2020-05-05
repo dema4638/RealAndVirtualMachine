@@ -20,6 +20,8 @@ public enum Instruction{
     CMP (17); //Palygina 2 reiksmes steko virsuneje. Isimti abi reiksmes ir patalpinti i steko virsune:
                     // 0, jei reiksmes lygios, 2 jei antra didesne, 1 jei pirma didesne
 
+	// C:\Users\kristupas.lunskas\Desktop\Universitetas\OS\RealAndVirtualMachine\power.txt
+	
     private final int code;
     private final int operandCount;
 

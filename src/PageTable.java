@@ -16,5 +16,4 @@ public class PageTable {
     public int getFrameNumber(int virtualPageNumber){
         return pageTable[virtualPageNumber];
     }
-
 }
