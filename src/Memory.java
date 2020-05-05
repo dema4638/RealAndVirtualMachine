@@ -45,7 +45,7 @@ public class Memory {
 				  busyFrames[nextBusyFrame] = true; 
 				  for(int j = 0; j < 16; j++) 
 				  { 
-					  memory[16 * nextBusyFrame + j] = -1; 
+					  memory[16 * nextBusyFrame + j] = 255;
 					  } i++; 
 			  } 
 		  }
