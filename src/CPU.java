@@ -28,6 +28,7 @@ public class CPU {
     public void execute(Instruction instruction, int[]operands){
         int value;
         int mode = getMODE();
+        System.out.println(instruction);
         switch(instruction) {
             case ADD:
                 value = mmu.getFromMemory(SP-1, PTR, mode) + mmu.getFromMemory(SP, PTR, mode);
