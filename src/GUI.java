@@ -219,10 +219,13 @@ public class GUI extends javax.swing.JFrame {
         for(int i = 0; i < data.length; i++){
             if(i % 4 == 0){
                 sb.append("\n");
-                sb.append(String.format("%02X", i));
+                sb.append(String.format("%02X", i * 4));
                 sb.append("\t");
             }
-            sb.append(String.format("%02X", data[i]));
+            if (data[i] != -1)
+            	sb.append(String.format("%02X", data[i]));
+            else 
+            	sb.append("FF");
             sb.append(" ");
         }
         updateRegisters();
@@ -231,9 +234,7 @@ public class GUI extends javax.swing.JFrame {
 
     private void nextStepButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nextStepButtonActionPerformed
         synchronized(rm){
-            if(rm.doNextStep() == 1){
                 rm.notify();
-            }
             updateRegisters();
         }
     }//GEN-LAST:event_nextStepButtonActionPerformed
