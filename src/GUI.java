@@ -82,7 +82,7 @@ public class GUI extends javax.swing.JFrame {
 
         memoryTextArea.setEditable(false);
         memoryTextArea.setColumns(20);
-        memoryTextArea.setFont(new java.awt.Font("Consolas", 0, 16)); // NOI18N
+        memoryTextArea.setFont(new java.awt.Font("Courier New", 0, 16)); // NOI18N
         memoryTextArea.setRows(5);
         jScrollPane1.setViewportView(memoryTextArea);
 
@@ -219,7 +219,7 @@ public class GUI extends javax.swing.JFrame {
         for(int i = 0; i < data.length; i++){
             if(i % 4 == 0){
                 sb.append("\n");
-                sb.append(String.format("%02X", i * 4));
+                sb.append(String.format("%02X", i));
                 sb.append("\t");
             }
             if (data[i] != -1)

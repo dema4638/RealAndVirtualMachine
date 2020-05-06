@@ -1,7 +1,7 @@
 public class MMU { //does the mapping between physical and virtual address
     private Memory memory;
-
     final int pageSize = Configuration.FRAME_SIZE; //the size of the page is 256 bytes or 64 words: 4 pages for each VM
+
     public MMU(Memory memory){
         this.memory = memory;
     }
