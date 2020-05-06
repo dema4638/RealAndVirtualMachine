@@ -30,7 +30,6 @@ public class VirtualMachine {
                     getFromMemory(getCPU().getAndIncrementPC(), getCPU().getPTR(), getCPU().getMODE());
         }
         getCPU().execute(instruction ,operands);
-
     }
 
     private CPU getCPU() {
